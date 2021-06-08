@@ -1,0 +1,184 @@
+C51 COMPILER V9.59.0.0   MAIN                                                              02/06/2020 12:00:18 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OMF2 OPTIMIZE(8,SPEED) BROWSE DEBUG PRINT(.\Listings\main.lst) TA
+                    -BS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include "stc8.h"
+   2          #include "intrins.h"
+   3          #include "uart2.h"
+   4          #include "i2c.h"
+   5          #include "servo.h"
+   6          #include "delay.h"
+   7          #include "motor.h"
+   8          #include "uart1.h"
+   9          
+  10          char uart2buf[50]="0";
+  11          extern int uart2datacount;
+  12          int uart2datasearch=0;
+  13          char servodata[8];
+  14          char servonumber;
+  15          int uart2servonumber=0;
+  16          char servosend[5];
+  17          int servosendnm=0;
+  18          
+  19          void uart2_wifi_init()
+  20          {
+  21   1      delay_ms(3500);
+  22   1      uart2_printf("AT+CIPMUX=1\r\n");
+  23   1      delay_ms(1000);
+  24   1      uart2_printf("AT+CIPSERVER=1,23\r\n");
+  25   1      }
+  26          
+  27          
+  28          void init()                         //starting init
+  29          {
+  30   1      uart1_init();
+  31   1      uart2_init();
+  32   1      uart2_wifi_init();
+  33   1      motor_clock_init();
+  34   1      motor_stop();
+  35   1      }
+  36          
+  37          
+  38            
+  39          
+  40          
+  41          void main()
+  42          {
+  43   1      
+  44   1      init();
+  45   1        
+  46   1      while(1)
+  47   1      {
+  48   2      for(uart2datasearch=0;uart2datasearch<=30;uart2datasearch++)
+  49   2      {
+  50   3        //up
+  51   3        if(uart2buf[uart2datasearch]=='u')
+  52   3        { if(uart2buf[uart2datasearch+1]=='p')
+  53   4      {
+  54   5         motor_up();
+C51 COMPILER V9.59.0.0   MAIN                                                              02/06/2020 12:00:18 PAGE 2   
+
+  55   5         uart2_printf("AT+CIPSEND=0,3\r\n");
+  56   5         delay_ms(100);
+  57   5         uart2_printf("ok\r\n");
+  58   5         delay_ms(100);
+  59   5      }
+  60   4      }
+  61   3        //do
+  62   3      if(uart2buf[uart2datasearch]=='d')
+  63   3        { if(uart2buf[uart2datasearch+1]=='o')
+  64   4      {
+  65   5         motor_down();
+  66   5         uart2_printf("AT+CIPSEND=0,3\r\n");
+  67   5         delay_ms(100);
+  68   5         uart2_printf("ok\r\n");
+  69   5         delay_ms(100);
+  70   5      }
+  71   4      }
+  72   3      //lf
+  73   3      if(uart2buf[uart2datasearch]=='l')
+  74   3        { if(uart2buf[uart2datasearch+1]=='f')
+  75   4      {
+  76   5         motor_left();
+  77   5         uart2_printf("AT+CIPSEND=0,3\r\n");
+  78   5         delay_ms(100);
+  79   5         uart2_printf("ok\r\n");
+  80   5         delay_ms(100);
+  81   5      }
+  82   4      }
+  83   3      //ri
+  84   3      if(uart2buf[uart2datasearch]=='r')
+  85   3        { if(uart2buf[uart2datasearch+1]=='i')
+  86   4      {
+  87   5         motor_right();
+  88   5         uart2_printf("AT+CIPSEND=0,3\r\n");
+  89   5         delay_ms(100);
+  90   5         uart2_printf("ok\r\n");
+  91   5         delay_ms(100);
+  92   5      }
+  93   4      }
+  94   3      //st
+  95   3      if(uart2buf[uart2datasearch]=='s')
+  96   3        { if(uart2buf[uart2datasearch+1]=='t')
+  97   4      {
+  98   5         motor_stop();
+  99   5         uart2_printf("AT+CIPSEND=0,3\r\n");
+ 100   5         delay_ms(100);
+ 101   5         uart2_printf("ok\r\n");
+ 102   5         delay_ms(100);
+ 103   5      }
+ 104   4      }
+ 105   3      //lc
+ 106   3      if(uart2buf[uart2datasearch]=='l')
+ 107   3        { if(uart2buf[uart2datasearch+1]=='c')
+ 108   4      {
+ 109   5         motor_lc();
+ 110   5         uart2_printf("AT+CIPSEND=0,3\r\n");
+ 111   5         delay_ms(100);
+ 112   5         uart2_printf("ok\r\n");
+ 113   5         delay_ms(100);
+ 114   5      }
+ 115   4      }
+ 116   3      //rc
+C51 COMPILER V9.59.0.0   MAIN                                                              02/06/2020 12:00:18 PAGE 3   
+
+ 117   3      if(uart2buf[uart2datasearch]=='r')
+ 118   3        { if(uart2buf[uart2datasearch+1]=='c')
+ 119   4      {
+ 120   5         motor_rc();
+ 121   5         uart2_printf("AT+CIPSEND=0,3\r\n");
+ 122   5         delay_ms(100);
+ 123   5         uart2_printf("ok\r\n");
+ 124   5         delay_ms(100);
+ 125   5      }
+ 126   4      }
+ 127   3      //se
+ 128   3      if(uart2buf[uart2datasearch]=='s')
+ 129   3        { if(uart2buf[uart2datasearch+1]=='e')
+ 130   4      {
+ 131   5            for(servosendnm=0;servosendnm<=20;servosendnm++)
+ 132   5           {
+ 133   6             delay_ms(1);
+ 134   6             spi_servo_senddata(uart2buf[uart2datasearch+2],uart2buf[uart2datasearch+3],uart2buf[uart2datasearch+4]
+             -,uart2buf[uart2datasearch+5]);
+ 135   6           }
+ 136   5           uart2buf[uart2datasearch+1]='p';
+ 137   5           
+ 138   5        /*  uart2buf[uart2datasearch+1]='p';           //uart1 and uart2 don't be used at the same time . A unkn
+             -ow bug.
+ 139   5            uart2_printf("AT+CIPSEND=0,3\r\n");
+ 140   5            delay_ms(100);
+ 141   5            uart2_printf("KO\r\n");
+ 142   5            delay_ms(100);  */
+ 143   5      }
+ 144   4      }
+ 145   3      
+ 146   3      
+ 147   3      }
+ 148   2      }}
+ 149          
+ 150          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    545    ----
+   CONSTANT SIZE    =     56    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     70    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

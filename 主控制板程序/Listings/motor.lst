@@ -1,0 +1,179 @@
+C51 COMPILER V9.59.0.0   MOTOR                                                             02/06/2020 12:00:19 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE MOTOR
+OBJECT MODULE PLACED IN .\Objects\motor.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE motor.c OMF2 OPTIMIZE(8,SPEED) BROWSE DEBUG PRINT(.\Listings\motor.lst) 
+                    -TABS(2) OBJECT(.\Objects\motor.obj)
+
+line level    source
+
+   1          #include "stc8.h"
+   2          #include "motor.h"
+   3          /*************************************************
+   4                        Pin to motor list
+   5          P00 P01      P02 P03     P04 P05     P06 P07        function
+   6          P32          P33         P34         P40            en/disable
+   7          LB           RB          LF          RF
+   8          
+   9          Pwm is always on.
+  10          By controling the en pin to control the motor.
+  11          *************************************************/
+  12          #define pwmlb P00
+  13          #define pwmrb P02
+  14          #define pwmlf P04
+  15          #define pwmrf P06
+  16          
+  17          #define udlb P01
+  18          #define udrb P03
+  19          #define udlf P05
+  20          #define udrf P07
+  21          
+  22          #define enlb P32
+  23          #define enrb P33
+  24          #define enlf P34
+  25          #define enrf P40
+  26          
+  27          void motor_clock_init()        //  800us a period
+  28          {
+  29   1          TMOD = 0x00;
+  30   1          TL0 = 0x36;                      
+  31   1          TH0 = 0xf7;
+  32   1          TR0 = 1;                                   
+  33   1          ET0 = 1;                                 
+  34   1          EA = 1;
+  35   1      }
+  36          
+  37          void motor_clock_pin() interrupt 1
+  38          {
+  39   1      P42=!P42;
+  40   1      pwmlb=!pwmlb;
+  41   1      pwmrb=!pwmrb;
+  42   1      pwmlf=!pwmlf;
+  43   1      pwmrf=!pwmrf;
+  44   1      }
+  45          
+  46          
+  47          //lb
+  48          void uplbs()
+  49          {enlb=0;
+  50   1      udlb=1;}
+  51          void downlbs()
+  52          {enlb=0;
+  53   1      udlb=0;}
+  54          void stoplbs()
+C51 COMPILER V9.59.0.0   MOTOR                                                             02/06/2020 12:00:19 PAGE 2   
+
+  55          {enlb=1;
+  56   1      udlb=1;}
+  57          
+  58          
+  59          //rb
+  60          void uprbs()
+  61          {enrb=0;
+  62   1      udrb=0;}
+  63          void downrbs()
+  64          {enrb=0;
+  65   1      udrb=1;}
+  66          void stoprbs()
+  67          {enrb=1;
+  68   1      udrb=1;}
+  69          
+  70          
+  71          //lf  
+  72          void uplfs()
+  73          {enlf=0;
+  74   1      udlf=1;}
+  75          void downlfs()
+  76          {enlf=0;
+  77   1      udlf=0;}
+  78          void stoplfs()
+  79          {enlf=1;
+  80   1      udlf=1;}
+  81          
+  82          
+  83          //rf
+  84          void uprfs()
+  85          {enrf=0;
+  86   1      udrf=0;}
+  87          void downrfs()
+  88          {enrf=0;
+  89   1      udrf=1;}
+  90          void stoprfs()
+  91          {enrf=1;
+  92   1      udrf=1;}
+  93          
+  94          
+  95          
+  96          
+  97          
+  98          //total
+  99          void motor_up()
+ 100          {
+ 101   1      uplbs();
+ 102   1      uprbs();
+ 103   1      uplfs();
+ 104   1      uprfs();
+ 105   1      }
+ 106          void motor_down()
+ 107          {
+ 108   1      downlbs();
+ 109   1      downrbs();
+ 110   1      downlfs();
+ 111   1      downrfs();
+ 112   1      }
+ 113          void motor_left()
+ 114          {
+ 115   1      downlbs();
+ 116   1      uprbs();
+C51 COMPILER V9.59.0.0   MOTOR                                                             02/06/2020 12:00:19 PAGE 3   
+
+ 117   1      uplfs();
+ 118   1      downrfs();
+ 119   1      }
+ 120          void motor_right()
+ 121          {
+ 122   1      uplbs();
+ 123   1      downrbs();
+ 124   1      downlfs();
+ 125   1      uprfs();
+ 126   1      }
+ 127          void motor_stop()
+ 128          {
+ 129   1      stoplbs();
+ 130   1      stoprbs();
+ 131   1      stoplfs();
+ 132   1      stoprfs();
+ 133   1      }
+ 134          void motor_lc()
+ 135          {
+ 136   1      downlbs();
+ 137   1      uprbs();
+ 138   1      downlfs();
+ 139   1      uprfs();
+ 140   1      }
+ 141          void motor_rc()
+ 142          {
+ 143   1      uplbs();
+ 144   1      downrbs();
+ 145   1      uplfs();
+ 146   1      downrfs();
+ 147   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    174    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

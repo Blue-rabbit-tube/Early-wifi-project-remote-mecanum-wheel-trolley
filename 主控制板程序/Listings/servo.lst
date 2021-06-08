@@ -1,0 +1,58 @@
+C51 COMPILER V9.59.0.0   SERVO                                                             02/06/2020 12:00:19 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE SERVO
+OBJECT MODULE PLACED IN .\Objects\servo.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE servo.c OMF2 OPTIMIZE(8,SPEED) BROWSE DEBUG PRINT(.\Listings\servo.lst) 
+                    -TABS(2) OBJECT(.\Objects\servo.obj)
+
+line level    source
+
+   1          #include "servo.h"
+   2          #include "stc8.h"
+   3          #include "intrins.h"
+   4          #include "delay.h"
+   5          #include "uart1.h"
+   6          
+   7          extern char servosend[5];
+   8          void spi_servo_senddata(char servoname,char servoang1,char servoang2,char servoang3)
+   9          {
+  10   1      servosend[0]='s';
+  11   1      servosend[1]=servoname;
+  12   1      servosend[2]=servoang1;
+  13   1      servosend[3]=servoang2;
+  14   1      servosend[4]=servoang3;
+  15   1      
+  16   1      uart2_send(servosend[0]);
+  17   1      uart2_send(servosend[1]);
+  18   1      uart2_send(servosend[2]);
+  19   1      uart2_send(servosend[3]);
+  20   1      uart2_send(servosend[4]);
+  21   1      //uart1_printf("\r\nOK\r\n");
+  22   1      }
+  23          
+  24          
+  25          
+  26          
+  27          
+  28          
+  29          
+  30            
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     37    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       4
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

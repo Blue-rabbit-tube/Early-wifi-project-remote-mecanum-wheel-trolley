@@ -1,0 +1,10 @@
+".\Objects\main.obj",
+".\Objects\uart2.obj",
+".\Objects\i2c.obj",
+".\Objects\servo.obj",
+".\Objects\delay.obj",
+".\Objects\motor.obj",
+".\Objects\uart1.obj" 
+TO ".\Objects\stc8a" 
+
+PRINT(".\Listings\stc8a.map")
