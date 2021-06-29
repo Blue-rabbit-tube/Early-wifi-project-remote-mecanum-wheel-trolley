@@ -1,0 +1,10 @@
+"STARTUP.obj",
+"main.obj",
+"io.obj",
+"delay.obj",
+"moto.obj",
+"zhongduan.obj",
+"searchline.obj",
+"uart.obj" 
+TO "test123" 
+RAMSIZE(256) 

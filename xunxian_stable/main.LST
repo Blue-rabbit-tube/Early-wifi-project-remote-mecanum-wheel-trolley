@@ -1,0 +1,216 @@
+C51 COMPILER V9.59.0.0   MAIN                                                              11/03/2019 14:53:44 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c BROWSE DEBUG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1          #include "STC8.h"
+   2          #include "intrins.h"
+   3          #include "io.h"
+   4          #include "delay.h"
+   5          #include "moto.h"
+   6          #include "searchline.h"
+   7          #include "uart.h"
+   8          //int finish=0;
+   9          unsigned char ss;
+  10          unsigned char tmp1;
+  11          unsigned char tmp2;
+  12          unsigned char mudi;   //接收acs2编码,接收目标值
+  13          unsigned char address;  //当前位置的acs2编码
+  14          int finish1,finish2,finish3,finish4;
+  15          int stop1=7,stop2=7,stop3=7,stop4=7;
+  16          
+  17          int dongzuo=0;   //1为前进。。。。。。。。。
+  18          //int mudi=0;      //目的变量
+  19          int finish=0;
+  20          int finish1=0;
+  21          int pwm1=0,pwm2=0,pwm3=0,pwm4=0;
+  22          int p6;
+  23          int p4;
+  24          
+  25          
+  26          
+  27          /*主函数入口*/
+  28          void main()
+  29            { P06=0;
+  30   1          P04=0;
+  31   1          io_init();                //io初始化
+  32   1      //    mudi='D';
+  33   1          uart2_init();             //串口2初始
+  34   1        /*  time1_init();             //硬件定时器初始化
+  35   1            time2_init();
+  36   1            time3_init();
+  37   1            time4_init();*/
+  38   1          address='E';
+  39   1          finish=0;
+  40   1          while(1)
+  41   1        {
+  42   2        //  address='E';    
+  43   2          
+  44   2        //  mudi='D';
+  45   2          if(mudi=='R'&&address!='E')
+  46   2          { 
+  47   3            address='E';
+  48   3         uart2_send('R'); 
+  49   3         delay_ms(10);   
+  50   3         uart2_send('\n');
+  51   3         delay_ms(10);  }
+  52   2       //  mudi=tmp2; 
+  53   2          //A节点处理
+  54   2          if(address=='A')
+  55   2          {
+C51 COMPILER V9.59.0.0   MAIN                                                              11/03/2019 14:53:44 PAGE 2   
+
+  56   3           if(mudi=='B')
+  57   3           {
+  58   4             zonghou(); 
+  59   4           if(P55==1)
+  60   4           { address='B';
+  61   5             tingzhi();
+  62   5             uart2_send('B');
+  63   5              delay_ms(10); 
+  64   5           uart2_send('\n');
+  65   5            delay_ms(10); }
+  66   4           }
+  67   3          }
+  68   2          //B节点处理
+  69   2          if(address=='B')
+  70   2          {
+  71   3            if(mudi=='C')
+  72   3           {
+  73   4             zonghou(); 
+  74   4             delay_ms(150);
+  75   4           if(linec()==1)
+  76   4           { address='C';
+  77   5             tingzhi();
+  78   5             uart2_send('C');
+  79   5              delay_ms(10); 
+  80   5           uart2_send('\n');
+  81   5            delay_ms(10); }
+  82   4           }
+  83   3           if(mudi=='A')
+  84   3           {
+  85   4             zongqian(); 
+  86   4             delay_ms(150);
+  87   4           if(linea()==1)
+  88   4           {address='A';
+  89   5             tingzhi();
+  90   5             uart2_send('A');
+  91   5              delay_ms(10); 
+  92   5           uart2_send('\n');
+  93   5            delay_ms(10); }
+  94   4           }
+  95   3           if(mudi=='D')
+  96   3           {
+  97   4             hengzuo(); 
+  98   4             delay_ms(150);
+  99   4           if(lined()==1)
+ 100   4           { address='D';
+ 101   5             tingzhi();
+ 102   5             uart2_send('D');
+ 103   5              delay_ms(10); 
+ 104   5           uart2_send('\n');
+ 105   5            delay_ms(10); }
+ 106   4           }
+ 107   3          }
+ 108   2          //C节点处理
+ 109   2          if(address=='C')
+ 110   2          {
+ 111   3           if(mudi=='B')
+ 112   3           {
+ 113   4             zongqian(); 
+ 114   4             delay_ms(150);
+ 115   4           if(P15==1)
+ 116   4           {address='B';
+ 117   5             tingzhi();
+C51 COMPILER V9.59.0.0   MAIN                                                              11/03/2019 14:53:44 PAGE 3   
+
+ 118   5             uart2_send('B');
+ 119   5              delay_ms(10); 
+ 120   5           uart2_send('\n');
+ 121   5            delay_ms(10); }
+ 122   4           }
+ 123   3          }
+ 124   2          //D节点处理
+ 125   2          if(address=='D')
+ 126   2          {
+ 127   3            if(mudi=='B')
+ 128   3           {
+ 129   4             hengyou(); 
+ 130   4              delay_ms(150);
+ 131   4           if(P01==1)
+ 132   4           {address='B';
+ 133   5             tingzhi();
+ 134   5             uart2_send('B');
+ 135   5              delay_ms(10); 
+ 136   5           uart2_send('\n');
+ 137   5            delay_ms(10); }
+ 138   4           }
+ 139   3           if(mudi=='E')
+ 140   3           {
+ 141   4             zonghou(); 
+ 142   4              delay_ms(150);
+ 143   4           if(linee()==1)
+ 144   4           {address='E';
+ 145   5             tingzhi();
+ 146   5             uart2_send('E');
+ 147   5              delay_ms(10); 
+ 148   5           uart2_send('\n');
+ 149   5            delay_ms(10); }
+ 150   4           }
+ 151   3          }
+ 152   2          //E节点处理
+ 153   2          if(address=='E')      
+ 154   2          {
+ 155   3           if(mudi=='D')
+ 156   3           { 
+ 157   4             zongqian();
+ 158   4             delay_ms(150);
+ 159   4      }
+ 160   3             
+ 161   3          
+ 162   3           if(lined()==1)
+ 163   3           { 
+ 164   4             address='D';
+ 165   4             tingzhi();
+ 166   4             uart2_send('D');
+ 167   4             delay_ms(10);  
+ 168   4           uart2_send('\n');
+ 169   4           delay_ms(10);  
+ 170   4          }
+ 171   3      
+ 172   3           }
+ 173   2      if(P06==1)
+ 174   2      {address='E';
+ 175   3        mudi='D';}
+ 176   2      if(P04==1)
+ 177   2      {address='D';
+ 178   3        mudi='E';}
+ 179   2      if (finish==0)
+C51 COMPILER V9.59.0.0   MAIN                                                              11/03/2019 14:53:44 PAGE 4   
+
+ 180   2      {
+ 181   3        delay_ms(5000);
+ 182   3        address='E';
+ 183   3        mudi='D';
+ 184   3        finish=1;
+ 185   3        }
+ 186   2          
+ 187   2        } }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    587    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     37    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

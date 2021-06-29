@@ -1,0 +1,10 @@
+int linea();
+int lineb();
+int linec();
+int lined();
+int linee();
+void hengzuo();
+void hengyou();
+void zongqian();
+void zonghou();
+int zongqianxiuzheng();

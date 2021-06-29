@@ -1,0 +1,23 @@
+C51 COMPILER V9.59.0.0   ZHONGDUAN                                                         11/03/2019 14:53:45 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE ZHONGDUAN
+OBJECT MODULE PLACED IN zhongduan.OBJ
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE zhongduan.c BROWSE DEBUG OBJECTEXTEND TABS(2)
+
+line level    source
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

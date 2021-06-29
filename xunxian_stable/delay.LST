@@ -1,0 +1,96 @@
+C51 COMPILER V9.59.0.0   DELAY                                                             11/03/2019 14:53:45 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE DELAY
+OBJECT MODULE PLACED IN delay.OBJ
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE delay.c BROWSE DEBUG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1          #include "stc8.h"
+   2          #include "delay.h"
+   3          #include "intrins.h"
+   4          /**********************************************************
+   5          *全局软件延时部分处理
+   6          ***********************************************************/
+   7          /*
+   8          //微秒级别延时
+   9          int delay_us(int d)
+  10          {
+  11          for (;d<=1;d--)
+  12          {
+  13             unsigned char a,b;
+  14              for(b=1;b>0;b--)
+  15                  for(a=3;a>0;a--);
+  16          
+  17          }
+  18                  return 0;
+  19          }
+  20          */
+  21          //毫秒级别延时
+  22          int delay_ms(int c)
+  23          {
+  24   1        for(;c>=0;c--)
+  25   1      {     unsigned char i;
+  26   2      
+  27   2        i = 7;
+  28   2        while (--i);
+  29   2      };
+  30   1      return 0;}
+  31          
+  32          
+  33          /**********************************************************
+  34          *硬件定时器初始化
+  35          ***********************************************************/
+  36          /*
+  37          void time1_init()
+  38          {
+  39          TMOD=0x44;
+  40          TL0=0xfa;
+  41          TH0=0xff;
+  42          TR0=1;
+  43          ET0=1;
+  44          EA=1;
+  45          }
+  46          void time2_init()
+  47          {
+  48          //TMOD=0x44;
+  49          TL1=0xfa;
+  50          TH1=0xff;
+  51          TR1=1;
+  52          ET1=1;
+  53          EA=1;
+  54          }
+  55          void time3_init()
+C51 COMPILER V9.59.0.0   DELAY                                                             11/03/2019 14:53:45 PAGE 2   
+
+  56          {
+  57          T3L=0xfa;
+  58          T3H=0xff;
+  59          T4T3M=0xcc;                   //玄学操作，这两个寄存器只能定义一遍
+  60          IE2=0x61;
+  61          EA=1;
+  62          }
+  63          void time4_init()
+  64          {
+  65          T4L=0xfa;
+  66          T4H=0xff;
+  67          //T4T3M=0xc9;
+  68          //IE2=ET4;
+  69          EA=1;
+  70          }
+  71          */
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     25    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       1
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

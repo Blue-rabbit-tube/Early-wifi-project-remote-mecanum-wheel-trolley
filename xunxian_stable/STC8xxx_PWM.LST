@@ -1,0 +1,116 @@
+C51 COMPILER V9.59.0.0   STC8XXX_PWM                                                       11/02/2019 20:55:30 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE STC8XXX_PWM
+OBJECT MODULE PLACED IN STC8xxx_PWM.OBJ
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE STC8xxx_PWM.C BROWSE DEBUG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1          
+   2          #include "config.h"
+   3          #include "STC8xxx_PWM.H"
+   4          
+   5          
+   6          void PWMGO(void)
+   7          {
+   8   1      //  int i=1;
+   9   1      
+  10   1        //设置需要使用的PWM输出口为强推挽模式
+  11   1        P20 = 0;
+  12   1        P21 = 0;
+  13   1        P22 = 0;
+  14   1        P23 = 0;
+  15   1      //  P24 = 0;
+  16   1      //  P25 = 0;
+  17   1      //  P26 = 0;
+  18   1      //  P27 = 0;
+  19   1        P2n_push_pull(0x0f);  // PWM0-P2.0  PWM1-P2.1  PWM2-P2.2  PWM3-P2.3 PWM4-P2.4 PWM5-P2.5  PWM6-P1.6  PWM7-P1
+             -.7
+  20   1        
+  21   1      //****************************************以上为I/0初始化******************************************
+  22   1        //使用定时器2作为时钟源
+  23   1        
+  24   1        EAXSFR();   //访问XFR
+  25   1      
+  26   1        PWMCFG = 0x00;  //   7位                     6位             5位    4位    3位    2位    1位    0位 
+  27   1                //   CBIF
+  28   1                //1  计数器归零中断标志  计数器归零触发ADC    -      -      -      -      -      -
+  29   1                //0                      归零时不触发ADC
+  30   1        
+  31   1        PWMIF = 0x00; //  7位    6位  5位   4位   3位   2位   1位   0位 
+  32   1                //  C7IF  C6IF  C5IF  C4IF  C3IF  C2IF  C1IF  C0IF
+  33   1                //相应PWM中断标志
+  34   1        
+  35   1        PWMFDCR = 0x00; //  7位     6位   5位     4位    3位    2位   1位   0位 
+  36   1                // INVCMP  INVIO  ENFD  FLTFLIO  EFDI  FDCMP  FDIO  FDIF
+  37   1      
+  38   1        PWMCKS = 11;  //7位6位5位    4位             3位    2位    1位    0位 
+  39   1                //   置0    0-系统时钟分频          分频参数设定
+  40   1                //          1-定时器2溢出       时钟=系统时钟/([3:0]+1)
+  41   1        
+  42   1        PWMC  = 16000;  // 15位寄存器，决定PWM周期，数值为1-32767，单位：脉冲时钟
+  43   1        
+  44   1      
+  45   1      // 以下为每个PWM输出口单独设置
+  46   1        PWM0CR = 0x80;  //     7位      6位        5位   4位3位     2位         1位            0位 
+  47   1                //     ENCnO    CnINI       -    Cn_S      ECnI       ECnT2SI        ECnT1SI
+  48   1                //1:   允许PWM  初始高电平       IO选择    允许中断   允许T2点中断   允许T1点中断
+  49   1                //0:   禁止PWM  初始低电平       IO选择    禁止中断   禁止T2点中断   禁止T1点中断
+  50   1        PWM1CR = 0x80; 
+  51   1        PWM2CR = 0x80; 
+  52   1        PWM3CR = 0x80; 
+  53   1      //  PWM4CR = 0x80; 
+  54   1      //  PWM5CR = 0x80;
+C51 COMPILER V9.59.0.0   STC8XXX_PWM                                                       11/02/2019 20:55:30 PAGE 2   
+
+  55   1      //  PWM6CR = 0x80;  
+  56   1      //  PWM7CR = 0x80;
+  57   1      /*  
+  58   1        PWM0HLD = 0x00;
+  59   1        PWM1HLD = 0x00;
+  60   1        PWM2HLD = 0x00;
+  61   1        PWM3HLD = 0x00;
+  62   1        PWM4HLD = 0x00;
+  63   1        PWM5HLD = 0x00;
+  64   1        PWM6HLD = 0x00;
+  65   1        PWM7HLD = 0x00;
+  66   1      */
+  67   1        PWM0T1 = 6000;
+  68   1        PWM1T1 = 6000;
+  69   1        PWM2T1 = 6000;
+  70   1        PWM3T1 = 6000;
+  71   1      //  PWM4T1 = 4000;
+  72   1      //  PWM5T1 = 4000;
+  73   1      //  PWM6T1 = 4000;
+  74   1      //  PWM7T1 = 4000;
+  75   1      
+  76   1        PWM0T2 = 1000;
+  77   1        PWM1T2 = 1000;
+  78   1        PWM2T2 = 1000;
+  79   1        PWM3T2 = 1000;
+  80   1      //  PWM4T2 = 2000;
+  81   1      //  PWM5T2 = 2000;
+  82   1      //  PWM6T2 = 2000;
+  83   1      //  PWM7T2 = 2000;
+  84   1      
+  85   1        PWMCR = 0x80; //允许PWM
+  86   1      
+  87   1        EAXRAM();   //恢复访问XRAM
+  88   1      
+  89   1      }
+  90          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    143    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

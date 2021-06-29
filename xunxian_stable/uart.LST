@@ -1,0 +1,74 @@
+C51 COMPILER V9.59.0.0   UART                                                              11/03/2019 14:53:46 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE UART
+OBJECT MODULE PLACED IN uart.OBJ
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE uart.c BROWSE DEBUG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1          #include "stc8.h"
+   2          #include "uart.h"
+   3          /**********************************************************
+   4          *串口部分处理
+   5          ***********************************************************/
+   6          extern unsigned char tmp2;
+   7          extern unsigned char mudi;
+   8          extern unsigned char ss;
+   9          #define FOSC 27000000L        //MUC主频为27mhz下
+  10          #define BAUD 9600         //串口2产生的波特率为9600
+  11          #define TM  (65536-(FOSC/4/BAUD)) //计算初值
+  12          
+  13          //串口2
+  14          //串口2初始化操作 
+  15          void uart2_init() 
+  16           {
+  17   1      
+  18   1       S2CON = 0x50;       //REN=1允许串行接受状态，串口工作模式2                        
+  19   1        T2L=TM;       //配置串口2波特率  初始值
+  20   1        T2H=TM>>8;                    
+  21   1        AUXR=0X14;      //开启定时器T2  并且开启1T模式
+  22   1        IE2=0X01;           //串口2中断使能                                                           
+  23   1        EA   = 1;           // 开总中断 
+  24   1      }
+  25          
+  26          void uart2_send(ss)
+  27          {
+  28   1          ES= 0;
+  29   1      
+  30   1             
+  31   1        //发送数据
+  32   1        S2BUF=ss;           //发送0x0a
+  33   1        while(S2CON&S2TI==0);       // 等特数据传送 (S2TI发送中断标志)
+  34   1        S2CON&=~S2TI;           //清标志位
+  35   1          
+  36   1          }   
+  37          
+  38          
+  39          void uart2_receive() interrupt 8
+  40          {
+  41   1        if(S2CON&S2RI)            //如果收到数据 S2RI置位
+  42   1        {
+  43   2         tmp2=S2BUF;  
+  44   2         S2CON&=~S2RI;            //清标志位  
+  45   2        }
+  46   1      }
+  47          
+  48          
+  49          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     42    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+C51 COMPILER V9.59.0.0   UART                                                              11/03/2019 14:53:46 PAGE 2   
+
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

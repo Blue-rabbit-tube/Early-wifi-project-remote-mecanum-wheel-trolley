@@ -1,0 +1,213 @@
+C51 COMPILER V9.59.0.0   SEARCHLINE                                                        11/03/2019 14:53:46 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE SEARCHLINE
+OBJECT MODULE PLACED IN searchline.OBJ
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE searchline.c BROWSE DEBUG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1           /****************************************
+   2          *传感器模块
+   3          ****************************************/
+   4          
+   5          #include "stc8.h"
+   6          #include "moto.h"
+   7          #include "delay.h"
+   8          #include "searchline.h"
+   9          #define qian1 P14
+  10          #define qian2 P15
+  11          #define qian3 P13
+  12          #define zuo1 P54
+  13          #define zuo2 P55
+  14          #define zuo3 P12
+  15          #define you1 P53
+  16          #define you2 P01
+  17          #define you3 P00
+  18          #define hou1 P50
+  19          #define hou2 P52
+  20          #define hou3 P51
+  21          
+  22          //传感器位置判断
+  23          #define yaxian 1                      //注意:1为压线,0为未压线
+  24          #define weiyaxian 0
+  25          #define yanshi 1                      //延时数值
+  26          extern int stop1,stop2,stop3,stop4;
+  27          extern int pwm1,pwm2,pwm3,pwm4;
+  28          
+  29          
+  30          
+  31          int linec()
+  32          {
+  33   1      if (you2==yaxian && hou2==weiyaxian && zuo2==weiyaxian && hou1==weiyaxian && hou3==weiyaxian)
+  34   1      return 1;
+  35   1      else
+  36   1      return 0;
+  37   1      }
+  38          
+  39          int lineb()
+  40          {
+  41   1      if (you2==yaxian && qian2==yaxian && zuo2==yaxian && hou2==yaxian)
+  42   1      return 1;
+  43   1      else
+  44   1      return 0;
+  45   1      }
+  46          
+  47          int linea()
+  48          {
+  49   1      if (you2==yaxian && hou2==yaxian&&zuo2==weiyaxian&&qian2==weiyaxian&&qian1==weiyaxian&&qian3==weiyaxian)
+  50   1      return 1;
+  51   1      else
+  52   1      return 0;
+  53   1      }
+  54          
+  55          int lined()
+C51 COMPILER V9.59.0.0   SEARCHLINE                                                        11/03/2019 14:53:46 PAGE 2   
+
+  56          {
+  57   1      if (you2==yaxian)
+  58   1      return 1;
+  59   1      else
+  60   1      return 0;
+  61   1      }
+  62          
+  63          int linee()
+  64          {
+  65   1      if (hou2==weiyaxian && hou1==weiyaxian && hou3==weiyaxian)
+  66   1      return 1;
+  67   1      else
+  68   1      return 0;
+  69   1      }
+  70          
+  71          
+  72          
+  73          //横向修正基准
+  74          void hengzuo()        //左平移时
+  75          {
+  76   1        zuopingyi();
+  77   1      if(you1==yaxian && you2==weiyaxian)
+  78   1      {
+  79   2      tingzhi1();
+  80   2      tingzhi2();
+  81   2      }
+  82   1      if(you3==yaxian && you2==weiyaxian)
+  83   1      { 
+  84   2      tingzhi3();
+  85   2      tingzhi4();
+  86   2      }
+  87   1      if(zuo1==yaxian && zuo2==weiyaxian)
+  88   1      {
+  89   2      tingzhi3();
+  90   2      tingzhi4();
+  91   2      }
+  92   1      if(zuo3==yaxian && zuo2==weiyaxian)
+  93   1      {
+  94   2      tingzhi1();
+  95   2      tingzhi2();
+  96   2      }
+  97   1      if(you1==yaxian && zuo1==yaxian)
+  98   1      {
+  99   2      qianjin();
+ 100   2      }
+ 101   1      if(you3==yaxian && zuo3==yaxian)
+ 102   1      {
+ 103   2      houtui();
+ 104   2      
+ 105   2      }
+ 106   1      }
+ 107          void hengyou()        //右平移时
+ 108          {
+ 109   1      youpingyi();
+ 110   1      if(you1==yaxian && you2==weiyaxian)
+ 111   1      {
+ 112   2      tingzhi3();
+ 113   2      tingzhi4();
+ 114   2      }
+ 115   1      if(you3==yaxian && you2==weiyaxian)
+ 116   1      { 
+ 117   2      tingzhi1();
+C51 COMPILER V9.59.0.0   SEARCHLINE                                                        11/03/2019 14:53:46 PAGE 3   
+
+ 118   2      tingzhi2();
+ 119   2      }
+ 120   1      if(zuo1==yaxian && zuo2==weiyaxian)
+ 121   1      {
+ 122   2      tingzhi1();
+ 123   2      tingzhi2();
+ 124   2      }
+ 125   1      if(zuo3==yaxian && zuo2==weiyaxian)
+ 126   1      {
+ 127   2      tingzhi3();
+ 128   2      tingzhi4();
+ 129   2      }
+ 130   1      if(you1==yaxian && zuo1==yaxian)
+ 131   1      {
+ 132   2      qianjin();
+ 133   2      }
+ 134   1      if(you3==yaxian && zuo3==yaxian)
+ 135   1      {
+ 136   2      houtui();
+ 137   2      }
+ 138   1      }
+ 139          //纵向修正基准
+ 140          void zongqian()
+ 141          {
+ 142   1      qianjin();
+ 143   1      
+ 144   1      if(hou1==yaxian&&hou2==weiyaxian)
+ 145   1        tingzhi3();
+ 146   1      if(hou3==yaxian&&hou2==weiyaxian)
+ 147   1        tingzhi4();
+ 148   1      
+ 149   1      if(qian1==yaxian && qian2==weiyaxian)
+ 150   1      {
+ 151   2        tingzhi1();
+ 152   2      }
+ 153   1      if(qian3==yaxian && qian2==weiyaxian)
+ 154   1      {
+ 155   2        tingzhi2();
+ 156   2      }
+ 157   1      if(qian1==yaxian&&hou1==yaxian)
+ 158   1        zuopingyi();
+ 159   1      if(qian3==yaxian&&hou3==yaxian)
+ 160   1        youpingyi();
+ 161   1      }
+ 162          
+ 163          void zonghou()
+ 164          {
+ 165   1      houtui();
+ 166   1      
+ 167   1      if(hou1==yaxian&&hou2==weiyaxian)
+ 168   1        tingzhi3();
+ 169   1      if(hou3==yaxian&&hou2==weiyaxian)
+ 170   1        tingzhi4();
+ 171   1      
+ 172   1      if(qian1==yaxian && qian2==weiyaxian)
+ 173   1      {
+ 174   2        tingzhi1();
+ 175   2      }
+ 176   1      if(qian3==yaxian && qian2==weiyaxian)
+ 177   1      {
+ 178   2        tingzhi2();
+ 179   2      }
+C51 COMPILER V9.59.0.0   SEARCHLINE                                                        11/03/2019 14:53:46 PAGE 4   
+
+ 180   1      if(qian1==yaxian&&hou1==yaxian)
+ 181   1        zuopingyi();
+ 182   1      if(qian3==yaxian&&hou3==yaxian)
+ 183   1        youpingyi();
+ 184   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    358    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
