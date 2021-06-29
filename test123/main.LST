@@ -1,0 +1,371 @@
+C51 COMPILER V9.59.0.0   MAIN                                                              09/30/2019 00:11:17 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c BROWSE DEBUG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1          /*
+   2          作者：姜卓谞
+   3          */
+   4          
+   5          #include "STC8.H"
+   6          #include "intrins.h"
+   7          
+   8          unsigned char tmp1;
+   9          unsigned char tmp2;
+  10          
+  11          
+  12          /**********************************************************
+  13          *全局软件延时部分处理
+  14          ***********************************************************/
+  15          
+  16          //微秒级别延时
+  17          int delay_us(int d)
+  18          {
+  19   1      for (;d<=1;d--)
+  20   1      {
+  21   2         unsigned char a,b;
+  22   2          for(b=1;b>0;b--)
+  23   2              for(a=3;a>0;a--);
+  24   2      
+  25   2      }
+  26   1              return 0;
+  27   1      }
+  28          
+  29          //毫秒级别延时
+  30          int delay_ms(int c)
+  31          {
+  32   1      for (;c<=1;c--)
+  33   1      {
+  34   2      delay_us(1000);
+  35   2      }
+  36   1              return 0;
+  37   1      }
+  38          
+  39          
+  40          
+  41          /**********************************************************
+  42          *串口部分处理
+  43          ***********************************************************/
+  44          
+  45          #define FOSC 27000000L        //MUC主频为27mhz下
+  46          #define BAUD 9600         //串口2产生的波特率为9600
+  47          #define TM  (65536-(FOSC/4/BAUD)) //计算初值
+  48          
+  49          //串口1初始化
+  50          void uart1_init() 
+  51          {
+  52   1      
+  53   1      
+  54   1      
+  55   1              SCON = 0x50;       //REN=1允许串行接受状态，串口工作模式2          
+C51 COMPILER V9.59.0.0   MAIN                                                              09/30/2019 00:11:17 PAGE 2   
+
+  56   1            TMOD= 0x20;      //定时器工作方式2       8位 自动重装载定时器  实现波特率                
+  57   1      
+  58   1           AUXR=0X40;    //开启1T模式
+  59   1      
+  60   1      
+  61   1           TH1 =TL1= 0xA9;      //  设置波特率为9600  公式 TH1=256-(27000000/32/9600)=256-87=169  0xA9
+  62   1      
+  63   1          TR1  = 1;        //开启定时器1                                                                      
+  64   1          EA   = 1;        // 开总中断 
+  65   1      
+  66   1      }
+  67          
+  68          void uart1_send()
+  69          {
+  70   1      char  code  MESSAGE[]= "我爱单片机 ";
+  71   1        
+  72   1        unsigned char a;
+  73   1      
+  74   1          a=0;
+  75   1           while(MESSAGE[a]!= '\0')
+  76   1             {
+  77   2          SBUF = MESSAGE[a];          //SUBF接受/发送缓冲器(又叫串行通信特殊功能寄存器)
+  78   2               while(!TI);        // 等特数据传送 (TI发送中断标志)
+  79   2           TI = 0;          // 清除数据传送标志
+  80   2          
+  81   2          a++;              // 下一个字符
+  82   2             } 
+  83   1       delay_us(1);
+  84   1          }   
+  85          
+  86          
+  87          
+  88          void uart1_receive() interrupt 4 using 1
+  89          { 
+  90   1        if (RI) 
+  91   1          {
+  92   2      //接收数据
+  93   2            tmp1 = SBUF;
+  94   2            RI = 0;
+  95   2          }
+  96   1      }  
+  97          
+  98          //串口2
+  99          //串口2初始化操作 
+ 100          
+ 101          
+ 102          void uart2_init() 
+ 103           {
+ 104   1      
+ 105   1       S2CON = 0x50;       //REN=1允许串行接受状态，串口工作模式2                        
+ 106   1        T2L=TM;       //配置串口2波特率  初始值
+ 107   1        T2H=TM>>8;                    
+ 108   1        AUXR=0X14;      //开启定时器T2  并且开启1T模式
+ 109   1        IE2=0X01;           //串口2中断使能                                                           
+ 110   1        EA   = 1;           // 开总中断 
+ 111   1      }
+ 112          
+ 113          void uart2_send()
+ 114          {
+ 115   1          ES= 0;
+ 116   1      
+ 117   1             
+C51 COMPILER V9.59.0.0   MAIN                                                              09/30/2019 00:11:17 PAGE 3   
+
+ 118   1        //发送数据
+ 119   1        S2BUF=0x33;           //发送0x0a
+ 120   1        while(S2CON&S2TI==0);       // 等特数据传送 (S2TI发送中断标志)
+ 121   1        S2CON&=~S2TI;           //清标志位
+ 122   1           
+ 123   1           
+ 124   1      
+ 125   1          }   
+ 126          
+ 127          
+ 128          void uart2_receive() interrupt 8 using 2
+ 129          {
+ 130   1        if(S2CON&S2RI)            //如果收到数据 S2RI置位
+ 131   1        {
+ 132   2         tmp2= S2BUF; 
+ 133   2         S2CON&=~S2RI;            //清标志位  
+ 134   2        }
+ 135   1      }
+ 136          
+ 137          
+ 138          
+ 139          //编码器pid闭环控制的看不懂函数（应该是自动化控制原理里的闭环控制公式）（希望大佬进行技术支持）
+ 140          //可能要进行参数调节优化，返回的目测不是一个整型数字
+ 141          //此处为整个程序的核心算法
+ 142          
+ 143          
+ 144          int Position_PID (int Encoder,int Target)                //需要给出编码值和目标值
+ 145          { 
+ 146   1        /* float Position_KP=80,Position_KI=0.1,Position_KD=500;
+ 147   1         static float Bias,Pwm,Integral_bias,Last_Bias;
+ 148   1         Bias=Encoder-Target;                                  //计算偏差
+ 149   1         Integral_bias+=Bias;                                  //求出偏差的积分
+ 150   1         Pwm=Position_KP*Bias+Position_KI*Integral_bias+Position_KD*(Bias-Last_Bias);       //位置式PID控制器
+ 151   1         Last_Bias=Bias;                                       //保存上一次偏差 
+ 152   1         return Pwm;                                           //增量输出
+ 153   1         */
+ 154   1           int cesuanzhi;
+ 155   1           cesuanzhi=Target-Encoder;
+ 156   1           return cesuanzhi;
+ 157   1      }
+ 158          
+ 159          
+ 160          //读取编码器计数
+ 161          int jishu1;
+ 162          int jishu2;
+ 163          int jishu3;
+ 164          int jishu4;
+ 165          
+ 166          void jishu_init() //100毫秒中断
+ 167          {
+ 168   1      T4T3M |= 0x02;    
+ 169   1        T3L = 0xF2;   
+ 170   1        T3H = 0xFE; 
+ 171   1        T4T3M |= 0x08;  
+ 172   1        IE2=ET3;
+ 173   1        EA=1;   
+ 174   1      }
+ 175          
+ 176          int Read_Encoder() interrupt 19
+ 177          {
+ 178   1             
+ 179   1         if (P21==1 )    //各种计数器接口（暂时只使用单计数器计数）（双计数器在摸索ing）
+C51 COMPILER V9.59.0.0   MAIN                                                              09/30/2019 00:11:17 PAGE 4   
+
+ 180   1           jishu1++;
+ 181   1         if (P23==1 )
+ 182   1           jishu2++;
+ 183   1         if (P25==1 )
+ 184   1           jishu3++;
+ 185   1         if (P27==1 )
+ 186   1           jishu4++;
+ 187   1      }
+ 188          
+ 189          
+ 190          //绝对值函数
+ 191          
+ 192          int myabs(int a)
+ 193          {        
+ 194   1          int temp;
+ 195   1          if(a<0)  temp=-a;  
+ 196   1          else temp=a;
+ 197   1          return temp;
+ 198   1      }
+ 199          
+ 200          //限制pid数值
+ 201          
+ 202          int paolu;
+ 203          int mubiaozhi1;
+ 204          int mubiaozhi2;
+ 205          int mubiaozhi3;
+ 206          int mubiaozhi4;
+ 207          
+ 208          
+ 209          void Xianfu_Pwm()
+ 210          {   
+ 211   1          int paolu=5;    //定义最大允许的偏差范围,调参警告
+ 212   1          if((myabs(jishu1)-myabs(mubiaozhi1))<paolu) jishu1=mubiaozhi1;  
+ 213   1          if((myabs(jishu2)-myabs(mubiaozhi2))<paolu) jishu2=mubiaozhi2;
+ 214   1          if((myabs(jishu3)-myabs(mubiaozhi3))<paolu) jishu3=mubiaozhi3;
+ 215   1          if((myabs(jishu4)-myabs(mubiaozhi4))<paolu) jishu4=mubiaozhi4;
+ 216   1      }
+ 217          
+ 218          //赋值给pwm
+ 219          /************************
+ 220                重点
+ 221          ************************/
+ 222          
+ 223          int motol1;
+ 224          int motol2;
+ 225          int motol3;
+ 226          int motol4;
+ 227          
+ 228          void Set_Pwm()
+ 229          {
+ 230   1            if(motol1>0)                  P32=1,      P33=0;       //没到目标值，继续前进，并配置io口 暂未配置某个io口
+ 231   1            else if(motol1<0)             P32=0,      P33=1;       //过了目标值，倒退，并配置io口 暂未配置某个io口
+ 232   1            else                          P32=0,      P33=0;                   //原地不动
+ 233   1            delay_us(5);
+ 234   1            if(motol2>0)                  P34=0,      P35=1;       //没到目标值，继续前进，并配置io口 暂未配置某个io口
+ 235   1            else if(motol2<0)             P34=1,      P35=0;       //过了目标值，倒退，并配置io口 暂未配置某个io口
+ 236   1            else                          P34=0,      P35=0;                   //原地不动
+ 237   1            delay_us(5);
+ 238   1            if(motol3>0)                  P36=1,      P37=0;       //没到目标值，继续前进，并配置io口 暂未配置某个io口
+ 239   1            else if(motol3<0)             P36=0,      P37=1;       //过了目标值，倒退，并配置io口 暂未配置某个io口
+ 240   1            else                          P36=0,      P37=0;                   //原地不动
+ 241   1            delay_us(5);
+C51 COMPILER V9.59.0.0   MAIN                                                              09/30/2019 00:11:17 PAGE 5   
+
+ 242   1            if(motol4>0)                  P41=1,      P42=0;       //没到目标值，继续前进，并配置io口 暂未配置某个io口
+ 243   1            else if(motol4<0)             P41=0,      P42=1;       //过了目标值，倒退，并配置io口 暂未配置某个io口
+ 244   1            else                          P41=0,      P42=0;                   //原地不动
+ 245   1            delay_us(5);
+ 246   1                  
+ 247   1      }
+ 248          
+ 249          //两个时钟(暂时没用)
+ 250          
+ 251          
+ 252          
+ 253          //pwm控制部分
+ 254          /************************
+ 255          重点
+ 256          ************************/
+ 257          
+ 258          
+ 259          
+ 260          
+ 261          void pwm_control()                   //调参位置
+ 262          {     
+ 263   1            do
+ 264   1            {
+ 265   2            motol1=Position_PID(jishu1,mubiaozhi1);              
+ 266   2            motol2=Position_PID(jishu2,mubiaozhi2);              
+ 267   2            motol3=Position_PID(jishu3,mubiaozhi3);             
+ 268   2            motol4=Position_PID(jishu4,mubiaozhi4);             
+ 269   2            Xianfu_Pwm();               
+ 270   2            Set_Pwm();                  
+ 271   2            }
+ 272   1            while (((motol1+motol2+motol3+motol4)-(mubiaozhi1+mubiaozhi2+mubiaozhi3+mubiaozhi4))==0);
+ 273   1      
+ 274   1      }
+ 275          
+ 276          
+ 277          /*主函数入口*/
+ 278          void main()
+ 279            { int dongzuo;
+ 280   1          int jingdongzhi;
+ 281   1          int finish;
+ 282   1          uart1_init();             //串口1初始化
+ 283   1          uart2_init();             //串口2初始化
+ 284   1          tmp2=0x00;
+ 285   1          while(1)
+ 286   1          {
+ 287   2      
+ 288   2        //  dongzuo=tmp2/0xa;         //串口接收的数据处理(有新数据会自动覆盖，不用管tmp1的数值）
+ 289   2        //  jingdongzhi=(tmp2-(dongzuo*10))*50;
+ 290   2          jingdongzhi=50;
+ 291   2        if (tmp2==0x11)
+ 292   2        {mubiaozhi1=jingdongzhi;
+ 293   3          mubiaozhi2=jingdongzhi;
+ 294   3          mubiaozhi3=jingdongzhi;
+ 295   3          mubiaozhi4=jingdongzhi;
+ 296   3          pwm_control();
+ 297   3          jishu_init(); 
+ 298   3          finish=1;
+ 299   3          }
+ 300   2       else if (tmp2==0x22)
+ 301   2        {mubiaozhi1=-jingdongzhi;
+ 302   3          mubiaozhi2=-jingdongzhi;
+ 303   3          mubiaozhi3=-jingdongzhi;
+C51 COMPILER V9.59.0.0   MAIN                                                              09/30/2019 00:11:17 PAGE 6   
+
+ 304   3          mubiaozhi4=-jingdongzhi;
+ 305   3          pwm_control();
+ 306   3          jishu_init(); 
+ 307   3          finish=1;
+ 308   3        }
+ 309   2       else if (tmp2==0x33)
+ 310   2        {mubiaozhi1=jingdongzhi;
+ 311   3          mubiaozhi2=-jingdongzhi;
+ 312   3          mubiaozhi3=jingdongzhi;
+ 313   3          mubiaozhi4=-jingdongzhi;
+ 314   3          pwm_control();
+ 315   3          jishu_init(); 
+ 316   3          finish=1;
+ 317   3        }
+ 318   2       else if (tmp2==0x44)
+ 319   2        { mubiaozhi1=-jingdongzhi;
+ 320   3          mubiaozhi2=jingdongzhi;
+ 321   3          mubiaozhi3=-jingdongzhi;
+ 322   3          mubiaozhi4=jingdongzhi;
+ 323   3          pwm_control();
+ 324   3          jishu_init(); 
+ 325   3          finish=1;
+ 326   3          }
+ 327   2        tmp2=0x00;
+ 328   2        if(finish==1)
+ 329   2        uart2_send();
+ 330   2        finish=0;
+ 331   2      }
+ 332   1      }
+*** WARNING C280 IN LINE 279 OF main.c: 'dongzuo': unreferenced local variable
+ 333          
+ 334            
+ 335            
+ 336            
+ 337          //确实佩服轮子设计者以及程序书写者的智慧
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    953    ----
+   CONSTANT SIZE    =     12    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     28       8
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

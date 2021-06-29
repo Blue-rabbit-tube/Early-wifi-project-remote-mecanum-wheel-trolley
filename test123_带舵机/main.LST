@@ -1,0 +1,189 @@
+C51 COMPILER V9.59.0.0   MAIN                                                              10/19/2019 22:45:48 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c BROWSE DEBUG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1          #include "STC8.H"
+   2          #include "intrins.h"
+   3          
+   4          unsigned char tmp1;
+   5          unsigned char tmp2;
+   6          
+   7          
+   8          /**********************************************************
+   9          *全局软件延时部分处理
+  10          ***********************************************************/
+  11          
+  12          //微秒级别延时
+  13          int delay_us(int d)
+  14          {
+  15   1      for (;d<=1;d--)
+  16   1      {
+  17   2         unsigned char a,b;
+  18   2          for(b=1;b>0;b--)
+  19   2              for(a=3;a>0;a--);
+  20   2      
+  21   2      }
+  22   1              return 0;
+  23   1      }
+  24          
+  25          //毫秒级别延时
+  26          int delay_ms(int c)
+  27          {
+  28   1      for (;c<=1;c--)
+  29   1      {
+  30   2      delay_us(1000);
+  31   2      }
+  32   1              return 0;
+  33   1      }
+  34          
+  35          
+  36          
+  37          /**********************************************************
+  38          *串口部分处理
+  39          ***********************************************************/
+  40          
+  41          #define FOSC 27000000L        //MUC主频为27mhz下
+  42          #define BAUD 9600         //串口2产生的波特率为9600
+  43          #define TM  (65536-(FOSC/4/BAUD)) //计算初值
+  44          
+  45          //串口2
+  46          //串口2初始化操作 
+  47          
+  48          
+  49          void uart2_init() 
+  50           {
+  51   1      
+  52   1       S2CON = 0x50;       //REN=1允许串行接受状态，串口工作模式2                        
+  53   1        T2L=TM;       //配置串口2波特率  初始值
+  54   1        T2H=TM>>8;                    
+  55   1        AUXR=0X14;      //开启定时器T2  并且开启1T模式
+C51 COMPILER V9.59.0.0   MAIN                                                              10/19/2019 22:45:48 PAGE 2   
+
+  56   1        IE2=0X01;           //串口2中断使能                                                           
+  57   1        EA   = 1;           // 开总中断 
+  58   1      }
+  59          
+  60          void uart2_send()
+  61          {
+  62   1          ES= 0;
+  63   1      
+  64   1             
+  65   1        //发送数据
+  66   1        S2BUF=0x33;           //发送0x0a
+  67   1        while(S2CON&S2TI==0);       // 等特数据传送 (S2TI发送中断标志)
+  68   1        S2CON&=~S2TI;           //清标志位
+  69   1           
+  70   1           
+  71   1      
+  72   1          }   
+  73          
+  74          
+  75          void uart2_receive() interrupt 8 using 2
+  76          {
+  77   1        if(S2CON&S2RI)            //如果收到数据 S2RI置位
+  78   1        {
+  79   2         tmp2= S2BUF; 
+  80   2         S2CON&=~S2RI;            //清标志位  
+  81   2        }
+  82   1      }
+  83          
+  84          
+  85          /*主函数入口*/
+  86          void main()
+  87            { 
+  88   1          int dongzuo;
+  89   1          int jingdongzhi;
+  90   1          int finish;
+  91   1          uart2_init();             //串口2初始化
+  92   1          tmp2=0x00;
+  93   1          jingdongzhi=0x00;
+  94   1          finish=0;
+  95   1          while(1)
+  96   1          {
+  97   2      
+  98   2          dongzuo=(tmp2/(0x10));          //串口接收的数据处理(有新数据会自动覆盖，不用管tmp1的数值）
+  99   2          jingdongzhi=((tmp2%(0x10))*(0x2000000));
+ 100   2        if (dongzuo==3)
+ 101   2        {
+ 102   3          P32=1,P33=0;
+ 103   3          P34=1,P35=0;
+ 104   3          P36=1,P37=0;  
+ 105   3          P41=1,P42=0; 
+ 106   3          delay_ms(jingdongzhi);
+ 107   3          P32=0,P33=0;
+ 108   3          P34=0,P35=0;
+ 109   3          P36=0,P37=0;  
+ 110   3          P41=0,P42=0; 
+ 111   3          finish=1;
+ 112   3          }
+ 113   2       else if (dongzuo==4)
+ 114   2        {
+ 115   3          P32=0,P33=1;
+ 116   3          P34=0,P35=1;
+ 117   3          P36=0,P37=1;  
+C51 COMPILER V9.59.0.0   MAIN                                                              10/19/2019 22:45:48 PAGE 3   
+
+ 118   3          P41=0,P42=1; 
+ 119   3          delay_ms(jingdongzhi);
+ 120   3          P32=0,P33=0;
+ 121   3          P34=0,P35=0;
+ 122   3          P36=0,P37=0;  
+ 123   3          P41=0,P42=0; 
+ 124   3          finish=1;
+ 125   3        }
+ 126   2       else if (dongzuo==2)
+ 127   2        { 
+ 128   3          P32=1,P33=0;
+ 129   3          P34=0,P35=1;
+ 130   3          P36=1,P37=0;  
+ 131   3          P41=0,P42=1; 
+ 132   3          delay_ms(jingdongzhi);
+ 133   3          P32=0,P33=0;
+ 134   3          P34=0,P35=0;
+ 135   3          P36=0,P37=0;  
+ 136   3          P41=0,P42=0; 
+ 137   3          finish=1;
+ 138   3        }
+ 139   2       else if (dongzuo==1)
+ 140   2        {
+ 141   3          P32=0,P33=1;
+ 142   3          P34=1,P35=0;
+ 143   3          P36=0,P37=1;  
+ 144   3          P41=1,P42=0; 
+ 145   3          delay_ms(jingdongzhi);
+ 146   3          P32=0,P33=0;
+ 147   3          P34=0,P35=0;
+ 148   3          P36=0,P37=0;  
+ 149   3          P41=0,P42=0; 
+ 150   3          finish=1;
+ 151   3          }
+ 152   2        
+ 153   2        if(finish==1)
+ 154   2        {uart2_send();
+ 155   3         tmp2=0x00;
+ 156   3         jingdongzhi=0x00;
+ 157   3          }
+ 158   2         finish=0;
+ 159   2      }
+ 160   1      }
+ 161          
+ 162          //简易版，稳定可用
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    337    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2       6
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
